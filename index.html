@@ -1,15 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 	<meta charset="UTF-8">
-	<title>Document</title>
+	<title>Juego de Memoria</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
+
+	<div id="config">
+		<p>Nivel de dificultad:</p>
+		<input type="radio" name="typeGame" value=4 checked>Fácil <br>
+		<input type="radio" name="typeGame" value=6>Intermedio <br>
+		<input type="radio" name="typeGame" value=8>Difícil <br>
+		<button id="start">A jugar!</button>
+	</div>
+
 	<div id="jugar"></div>
-	<button id="start">
-  		¡Comenzar el juego!
-	</button>
+	
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
 	<script type="text/javascript" src="script.js"></script>
 </body>
 </html>

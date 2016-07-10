@@ -1,20 +1,32 @@
+
+/*
+    FUTURO Sistema de puntos (Aún no implementado) -> Hay que cambiar varias cosas
+        * Cada emparejamiento = +100 puntos
+        * Cada emparejamiento consecutivo = se dobla la cantidad de puntos de la jugada anterior
+        * Emparejar todos = +1000 puntos
+ */
+
 document.querySelector("#start").addEventListener('click', function(){
+    
   memoria({
     id: "#jugar",
-    col: 4,
-    row: 4
+    col: $("input[name='typeGame']:checked").val(),
+    row: $("input[name='typeGame']:checked").val()
   });
   
-  this.remove();
+  $("#config").hide();
+  $("#jugar").show("slow");
+
 })
 function memoria(conf){
+
     if(conf.col % 2 > 0) {
-        console.log('Only pair numbers');
+        console.log('Error en el número de columnas. Sólo se puede incluir números pares');
         return;
     }
     
     if(conf.row % 2 > 0) {
-        console.log('Only pair numbers');
+        console.log('Error en el número de filas. Sólo se puede incluir números pares');
         return;
     }
     
@@ -24,10 +36,12 @@ function memoria(conf){
         n = 0, // numbers as show
         p = { // play and game data
             points: 0,
-            maxPoints: 1000 * (conf.col*conf.row/2),
+            rounds: 0,
+            count: 0,
+            limit: (conf.col*conf.row),
             perSuccess: 1000,
             clicked: [],
-            timeForPlay: Math.ceil((conf.col*conf.row)*3),
+            timeForPlay: Math.ceil((conf.col*conf.row)*2.85),
             gameOver: false,
             started: false
         },
@@ -81,6 +95,14 @@ function memoria(conf){
     var comments = d.createElement("div");
     comments.className = 'game-comments';
     c.appendChild(comments);
+
+    // Append go back button
+    var goBackButton = d.createElement("button");
+    goBackButton.id = 'goBackButton';
+    goBackButton.innerHTML="Volver atrás";
+    c.appendChild(goBackButton);
+
+    document.getElementById("goBackButton").addEventListener("click", goBack);
     
     // Star game after 5 seconds ..
     start();
@@ -89,7 +111,7 @@ function memoria(conf){
         var n = Math.ceil((conf.col * conf.row)*0.3);
         
         var interval = setInterval(function(){
-            dashboard.innerHTML = 'The game will be start in ' + n + ' seconds ..';
+            dashboard.innerHTML = 'El juego comenzará en ' + n + ' segundos ..';
             
             if(n === 0){
                 cleansTds();
@@ -103,22 +125,25 @@ function memoria(conf){
     
     function timeElapsed(){
         var interval = setInterval(function(){
-            if(p.timeForPlay === 0 || p.maxPoints === p.points) {
+            if(p.timeForPlay === 0 || p.limit === p.count) {
                 clearInterval(interval);
                 gameOver();
             } else {
-                dashboard.innerHTML = 'You have ' + (p.timeForPlay--) + ' seconds left for try to win the game :) ..';                
+                dashboard.innerHTML = 'Tienes ' + (p.timeForPlay--) + ' segundos para intentar ganar la partida :) ..';                
             }
         }, 1000);
     }
     
     function gameOver(){
         p.gameOver = true;
-        if(p.maxPoints === p.points){
-            dashboard.innerHTML = 'You win this fucking amazing game with ' + p.points + ' points :)';
+        if(p.limit === p.count){
+            dashboard.innerHTML = '¡Has ganado la partida! Lo hiciste con ' + p.points + ' puntos :)';
+            $(".game-dashboard").css("background", "#60F06A");
         }else{
-            dashboard.innerHTML = 'You loose this game ..';
+            dashboard.innerHTML = 'Perdiste, lo siento.. Lo hiciste con ' + p.points + ' puntos :(';
+            $(".game-dashboard").css("background", "#F92D2D");
         }
+
     }
     
     function cleansTds(){
@@ -148,15 +173,16 @@ function memoria(conf){
                 p.clicked[0].className = 'success';
                 p.clicked[1].className = 'success';
                 p.points += p.perSuccess;
+                p.count += 2;
                 
-                comments.innerHTML = 'You gain ' + p.perSuccess + ' points. Now you have ' + p.points + ' points ...';
+                comments.innerHTML = 'Ganas ' + p.perSuccess + ' puntos. Ahora tienes ' + p.points + ' puntos ...';
             } else{ // Fails
                 p.started = false;
                 setTimeout(function(){
                     p.started = true;
                     cleansTds();
                 }, 1000);
-                comments.innerHTML = 'You fails, try again ...';
+                comments.innerHTML = '¡Has fallado!, inténtalo de nuevo ...';
             }
         }
         
@@ -164,7 +190,7 @@ function memoria(conf){
             p.clicked = [];
         }
         
-        if(p.points === p.maxPoints){
+        if(p.count === p.limit){
             gameOver();
         }
     }
@@ -185,5 +211,15 @@ function memoria(conf){
         }
         
         return array_new;
+    }
+
+    function goBack(){
+        $("#jugar").hide();
+        $("#config").show("slow");
+
+        // Delete all my children (nodes)
+        while (c.firstChild) {
+            c.removeChild(c.firstChild);
+        }
     }
 }
