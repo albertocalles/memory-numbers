@@ -1,0 +1,69 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+body{
+  font-family:Open Sans;
+}
+
+#jugar{
+  border:1px solid #ddd;
+  padding:20px;
+  text-align:center;
+}
+
+table.game-container{
+  border-collapse: collapse;
+  border:1px solid #fff;
+  margin:auto;
+}
+
+table.game-container td{
+  border:1px solid #ddd;
+  cursor:pointer;
+  height:40px;
+  width:40px;
+  text-align:center;
+}
+
+table.game-container td span{
+  background:#eee;
+  display:block;
+  width:100%;
+  height:100%;
+  line-height:40px;
+}
+
+table.game-container td span.success{
+  background:#2ec32e;
+  display:block;
+}
+
+table.game-container td span.select{
+  background:#53d1ef;
+  font-weight:bold;
+  display:block;
+}
+
+table.game-container td span.none{
+  display:none;
+}
+
+div.game-dashboard{
+  display:block;
+  padding:20px;
+  font-size:14px;
+  text-align:center;
+  background:#ddd;
+  margin-bottom:20px;
+}
+
+div.game-comments{
+  display:block;
+  padding:20px;
+  font-size:14px;
+  text-align:center;
+  color:#aaa;
+}
+
+#start{
+  padding:20px;
+  font-size:16px;
+}
