@@ -1,9 +1,11 @@
 
 /*
-    FUTURO Sistema de puntos (Aún no implementado) -> Hay que cambiar varias cosas
-        * Cada emparejamiento = +100 puntos
-        * Cada emparejamiento consecutivo = se dobla la cantidad de puntos de la jugada anterior
-        * Emparejar todos = +1000 puntos
+    Sistema de puntos (Aún no implementado) -> Hay que cambiar varias cosas
+        * +1000 puntos por ganar
+        * +100 puntos por cada pareja
+        * +50 puntos por cada segundo que nos sobre si ganamos
+        * -20 puntos por cada fallo
+        * Cada racha de emparejamientos consecutivos recibe un bonus cada vez más grande
  */
 
 document.querySelector("#start").addEventListener('click', function(){
@@ -35,11 +37,14 @@ function memoria(conf){
         t = d.createElement("table"), // table
         n = 0, // numbers as show
         p = { // play and game data
-            points: 0,
-            rounds: 0,
-            count: 0,
-            limit: (conf.col*conf.row),
-            perSuccess: 1000,
+            points: 0, // puntos acumulados
+            count: 0, // contador de casillas descubiertas
+            limit: (conf.col*conf.row), // limite de casillas
+            pGame: 1000, // puntos por ganar la partida
+            pPerPair: 100, // puntos por pareja
+            pPerSeconds: 50, // puntos por cada segundo sobrante
+            pPerFault: 20, // puntos por fallo
+            streak: 0, // racha - Numero de turnos por racha
             clicked: [],
             timeForPlay: Math.ceil((conf.col*conf.row)*2.85),
             gameOver: false,
@@ -137,7 +142,9 @@ function memoria(conf){
     function gameOver(){
         p.gameOver = true;
         if(p.limit === p.count){
-            dashboard.innerHTML = '¡Has ganado la partida! Lo hiciste con ' + p.points + ' puntos :)';
+            p.points += p.pGame;
+            p.points += p.timeForPlay * p.pPerSeconds;
+            dashboard.innerHTML = '¡Has ganado la partida! Recibes ' + p.pGame + ' puntos por ganar la partida + ' + (p.timeForPlay * p.pPerSeconds) + ' puntos por el tiempo que te sobró. Ganaste con ' + p.points + ' puntos :)';
             $(".game-dashboard").css("background", "#60F06A");
         }else{
             dashboard.innerHTML = 'Perdiste, lo siento.. Lo hiciste con ' + p.points + ' puntos :(';
@@ -172,17 +179,33 @@ function memoria(conf){
             if(p.clicked[0].innerHTML === p.clicked[1].innerHTML){
                 p.clicked[0].className = 'success';
                 p.clicked[1].className = 'success';
-                p.points += p.perSuccess;
+                
                 p.count += 2;
                 
-                comments.innerHTML = 'Ganas ' + p.perSuccess + ' puntos. Ahora tienes ' + p.points + ' puntos ...';
+                if(p.streak){
+                    p.points += p.pPerPair * p.streak * 2;
+                    comments.innerHTML = '¡Racha ' + (p.streak+1) + 'X! Ganas ' + (p.pPerPair*p.streak*2) + ' puntos. Ahora tienes ' + p.points + ' puntos';
+                    p.streak = p.streak * 2;
+                }else{
+                    p.streak = 1;
+                    p.points += p.pPerPair;
+                    comments.innerHTML = 'Ganas ' + p.pPerPair + ' puntos. Ahora tienes ' + p.points + ' puntos';
+                }
+
+
             } else{ // Fails
                 p.started = false;
                 setTimeout(function(){
                     p.started = true;
                     cleansTds();
                 }, 1000);
-                comments.innerHTML = '¡Has fallado!, inténtalo de nuevo ...';
+                p.streak = 0;
+
+                if(p.points > p.pPerFault){
+                    p.points = p.points - p.pPerFault;
+                }
+
+                comments.innerHTML = '¡Has fallado! Pierdes ' + p.pPerFault + ' puntos :( . Ahora tienes ' + p.points + ' puntos';
             }
         }
         
