@@ -85,16 +85,27 @@ function memoria(conf){
         
         t.appendChild(tr);
     }
-    
+
+    // Append timer to dashboard
+    var timer = d.createElement("div");
+    timer.className = 'timer';
+    timer.innerHTML = '<p>' + p.timeForPlay + '</p>';
+    c.appendChild(timer);
+
+    // Append dashboard to container
+    var cpoints = d.createElement("div");
+    cpoints.className = 'cpoints';
+    c.appendChild(cpoints);
+
     // Append dashboard to container
     var dashboard = d.createElement("div");
     dashboard.className = 'game-dashboard';
+    dashboard.innerHTML = "---";
     c.appendChild(dashboard);
-    
+
     // Append table to container
     t.className = 'game-container';
     c.appendChild(t);
-    
     
     // Append plays comments to container
     var comments = d.createElement("div");
@@ -122,6 +133,11 @@ function memoria(conf){
                 cleansTds();
                 timeElapsed();
                 p.started = true;
+
+                $(".timer").css("display","table");
+                $(".cpoints").css("display","table");
+                
+                cpoints.innerHTML = '<p>' + 0 + '</p>';
                 
                 clearInterval(interval);
             } else n--;
@@ -134,7 +150,8 @@ function memoria(conf){
                 clearInterval(interval);
                 gameOver();
             } else {
-                dashboard.innerHTML = 'Tienes ' + (p.timeForPlay--) + ' segundos para intentar ganar la partida :) ..';                
+                timer.innerHTML = '<p>' + p.timeForPlay-- + '</p>';
+                dashboard.innerHTML = 'Tienes ' + (p.timeForPlay) + ' segundos para intentar ganar la partida :) ..';                
             }
         }, 1000);
     }
@@ -143,13 +160,18 @@ function memoria(conf){
         p.gameOver = true;
         if(p.limit === p.count){
             p.points += p.pGame;
-            p.points += p.timeForPlay * p.pPerSeconds;
-            dashboard.innerHTML = '¡Has ganado la partida! Recibes ' + p.pGame + ' puntos por ganar la partida + ' + (p.timeForPlay * p.pPerSeconds) + ' puntos por el tiempo que te sobró. Ganaste con ' + p.points + ' puntos :)';
+            p.points += (p.timeForPlay - 1) * p.pPerSeconds;
+
+            $(".timer").css("display","none");
+
+            dashboard.innerHTML = '¡Has ganado la partida! Recibes ' + p.pGame + ' puntos por ganarla + ' + (p.timeForPlay * p.pPerSeconds) + ' puntos por el tiempo que te sobró (' + p.timeForPlay + 's). Total = ' + p.points + ' puntos :)';
             $(".game-dashboard").css("background", "#60F06A");
         }else{
             dashboard.innerHTML = 'Perdiste, lo siento.. Lo hiciste con ' + p.points + ' puntos :(';
             $(".game-dashboard").css("background", "#F92D2D");
         }
+
+        cpoints.innerHTML = '<p>' + p.points + '</p>';
 
     }
     
@@ -184,13 +206,14 @@ function memoria(conf){
                 
                 if(p.streak){
                     p.points += p.pPerPair * p.streak * 2;
-                    comments.innerHTML = '¡Racha ' + (p.streak+1) + 'X! Ganas ' + (p.pPerPair*p.streak*2) + ' puntos. Ahora tienes ' + p.points + ' puntos';
-                    p.streak = p.streak * 2;
+                    comments.innerHTML = '¡Racha ' + (p.streak+1) + 'X! Ganas ' + (p.pPerPair*p.streak*2) + ' puntos.';
                 }else{
                     p.streak = 1;
                     p.points += p.pPerPair;
-                    comments.innerHTML = 'Ganas ' + p.pPerPair + ' puntos. Ahora tienes ' + p.points + ' puntos';
+                    comments.innerHTML = 'Ganas ' + p.pPerPair + ' puntos.';
                 }
+
+                cpoints.innerHTML = '<p>' + p.points + '</p>';
 
 
             } else{ // Fails
@@ -205,7 +228,8 @@ function memoria(conf){
                     p.points = p.points - p.pPerFault;
                 }
 
-                comments.innerHTML = '¡Has fallado! Pierdes ' + p.pPerFault + ' puntos :( . Ahora tienes ' + p.points + ' puntos';
+                cpoints.innerHTML = '<p>' + p.points + '</p>';
+                comments.innerHTML = '¡Has fallado! Pierdes ' + p.pPerFault + ' puntos :( ';
             }
         }
         
@@ -239,6 +263,9 @@ function memoria(conf){
     function goBack(){
         $("#jugar").hide();
         $("#config").show("slow");
+
+        p.started = false;
+        p.timeForPlay = 0;
 
         // Delete all my children (nodes)
         while (c.firstChild) {
